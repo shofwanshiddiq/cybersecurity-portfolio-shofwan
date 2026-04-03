@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 | Field | Detail |
 |-------|--------|
@@ -16,7 +16,7 @@
 
 ---
 
-## 🎯 Objective
+## Objective
 
 Simulate real-world Broken Access Control attacks against OWASP Juice Shop to:
 1. Demonstrate unauthorized access to other users' data (Horizontal Privilege Escalation)
@@ -26,7 +26,7 @@ Simulate real-world Broken Access Control attacks against OWASP Juice Shop to:
 
 ---
 
-## 🔍 Reconnaissance & Analysis
+## Reconnaissance & Analysis
 
 ### Application Mapping
 - Browsed the application manually while proxying all traffic through Burp Suite
@@ -53,7 +53,7 @@ Endpoint: PUT /rest/products/:id/reviews
 
 ---
 
-## 💥 Exploitation
+## Exploitation
 
 ### Finding 1 — IDOR: Accessing Another User's Basket
 
@@ -151,7 +151,51 @@ The review API accepts the `author` field from the client request body and store
 
 ---
 
-## 🛠️ Root Cause Analysis
+## Proof of Findings
+
+### Finding 1 — IDOR: Accessing Another User's Basket
+
+- Intercept endpoint GET /rest/basket/[ID] then sent it to Repeater
+
+<img width="600" height="671" alt="image" src="https://github.com/user-attachments/assets/0c638eb9-5869-4eba-8115-b820d589b425" />
+
+- Change the ID number from parameters to other user's ID
+  
+<img width="600" height="1000" alt="image" src="https://github.com/user-attachments/assets/829e2c26-4236-4d18-bb58-13bfa054d4d3" />
+
+- Attacker able to see other user's baskets
+  
+<img width="600" height="1000" alt="image" src="https://github.com/user-attachments/assets/46309cfa-eb34-4a5d-978f-e4db6415cc18" />
+
+### Finding 2 — SQL Injection: Admin Authentication Bypass
+
+- Attacker input email admin with SQL Injection Script  (admin@juice-sh.op’-- )
+
+<img width="600" height="628" alt="image" src="https://github.com/user-attachments/assets/2db55789-78e1-4756-b26b-b989379e0b5c" />
+
+- Login succeed
+
+<img width="600" height="577" alt="image" src="https://github.com/user-attachments/assets/a00af64e-6f61-4f78-9322-af0f5e502298" />
+
+- Add one sample items, then Intercept endpoint /rest/basket/[ID] to get cookie
+
+<img width="600" height="332" alt="image" src="https://github.com/user-attachments/assets/bf43830e-44a8-47fa-848a-32def4f061db" />
+
+### Finding 3 — IDOR: User Review Impersonation
+
+- Submit a review on one of the items, then intercept endpoint /rest/products/[ID]/reviews
+
+<img width="600" height="467" alt="image" src="https://github.com/user-attachments/assets/c73410ac-4f54-4a5d-b124-b89cbbcfd114" />
+
+- change the author to other user's email
+
+<img width="600" height="527" alt="image" src="https://github.com/user-attachments/assets/329767e5-c194-417c-a6a0-09e24fe69479" />
+
+- User review manipulation success
+
+<img width="600" height="530" alt="image" src="https://github.com/user-attachments/assets/4addcff4-b4a2-440b-8c10-6585f49db950" />
+
+## Root Cause Analysis
 
 | Finding | Root Cause |
 |---------|-----------|
@@ -161,7 +205,7 @@ The review API accepts the `author` field from the client request body and store
 
 ---
 
-## 🔧 Remediation
+## Remediation
 
 ### Fix 1 — IDOR Basket: Add Ownership Enforcement
 
@@ -229,7 +273,7 @@ app.put('/rest/products/:id/reviews', async (req, res) => {
 
 ---
 
-## 📐 Security Principles Applied
+## Security Principles Applied
 
 | Principle | Description | Applied Fix |
 |-----------|-------------|-------------|
@@ -240,13 +284,4 @@ app.put('/rest/products/:id/reviews', async (req, res) => {
 
 ---
 
-## 🧠 Lessons Learned
 
-1. **Authentication ≠ Authorization.** Verifying a user is logged in does not mean they can access any resource — always validate ownership at the object level.
-2. **Sequential IDs are dangerous.** Using auto-increment integers as resource identifiers without access checks makes IDOR trivially exploitable. Consider UUIDs or access-control tokens.
-3. **Never trust client-supplied identity fields.** Any field like `author`, `userId`, or `email` sent in a request body can be tampered with. Always derive identity from server-verified tokens (JWT, session).
-4. **Admin credentials in public reviews** — Information disclosure via user-generated content can provide attackers with a direct target for credential attacks.
-
----
-
-*Environment: Authorized lab — OWASP Juice Shop (intentionally vulnerable). No production systems accessed.*
