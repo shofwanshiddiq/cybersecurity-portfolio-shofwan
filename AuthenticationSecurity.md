@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 | Field | Detail |
 |-------|--------|
@@ -14,7 +14,7 @@
 
 ---
 
-## 🎯 Objective
+## Objective
 
 Design a comprehensive, standards-compliant authentication security policy for web applications, covering:
 - Secure password requirements and storage
@@ -25,7 +25,7 @@ Design a comprehensive, standards-compliant authentication security policy for w
 
 ---
 
-## 📖 Background
+## Background
 
 **Identification** is the process of claiming an identity — typically via username or email.  
 **Authentication** is the process of *proving* that identity — typically via password, token, biometric, or a combination.
@@ -37,9 +37,9 @@ Authentication failures rank **#7 in OWASP Top 10** (2021) — indicating these 
 
 ---
 
-## 🔓 Common Vulnerabilities
+## Vulnerabilities
 
-### Vulnerability 1 — Weak Password Policy
+### 1. Weak Password Policy
 
 Applications that allow common or short passwords expose users to:
 
@@ -54,7 +54,7 @@ Example weak passwords accepted by misconfigured apps:
   - Passwords under 8 characters
 ```
 
-### Vulnerability 2 — No Login Rate Limiting
+### 2. No Login Rate Limiting
 
 Without attempt limiting, automated tools can test thousands of passwords per second:
 
@@ -65,7 +65,7 @@ Speed      : 1,000–100,000 attempts/second (depending on app response time)
 Mitigation : Account lockout, CAPTCHA, progressive delays, IP rate limiting
 ```
 
-### Vulnerability 3 — Plaintext Password Storage
+### 3. Plaintext Password Storage
 
 ```sql
 -- What attackers find in a leaked database dump
@@ -92,7 +92,7 @@ Risk Scenario: Session never expires
   → No time limit on attacker's access window
 ```
 
-### Vulnerability 5 — Single-Factor Only
+### 5. Single-Factor Only
 
 ```
 If password is breached (phishing, data breach, reuse):
@@ -103,9 +103,9 @@ If password is breached (phishing, data breach, reuse):
 
 ---
 
-## 📐 Authentication Security Policy
+## Security Policy
 
-### Policy 1 — Password Requirements
+### 1. Password Requirements
 
 Based on **OWASP ASVS V2** and **NIST SP 800-63B**:
 
@@ -124,7 +124,7 @@ Expiry policy     : Do NOT force periodic rotation (NIST 800-63B §5.1.1.2)
 
 > **NIST Note:** Mandatory password rotation without evidence of compromise leads to predictable patterns (`Password1!` → `Password2!`) and reduces overall security. NIST SP 800-63B explicitly recommends against it.
 
-### Policy 2 — Login Attempt Limiting
+### 2. Login Attempt Limiting
 
 ```
 Max failed attempts  : 5 per account within 15 minutes
@@ -155,7 +155,7 @@ app.post('/login', async (req, res) => {
 });
 ```
 
-### Policy 3 — Password Storage
+### 3. Password Storage
 
 ```
 Algorithm      : bcrypt (rounds = 12) or Argon2id (recommended for new systems)
@@ -177,7 +177,7 @@ def verify_login(plaintext: str, stored_hash: str) -> bool:
     return bcrypt.checkpw(plaintext.encode('utf-8'), stored_hash.encode('utf-8'))
 ```
 
-### Policy 4 — Multi-Factor Authentication (MFA)
+### 4. Multi-Factor Authentication (MFA)
 
 ```
 Required for       : Admin accounts, privileged roles, first login from new device
@@ -192,7 +192,7 @@ Recovery codes     : Generate 8–10 single-use backup codes on MFA setup
 Re-authentication  : Require current password before changing email, password, or MFA
 ```
 
-### Policy 5 — CAPTCHA
+### 5. CAPTCHA
 
 ```
 When to apply  : After 3 failed login attempts from same session
@@ -202,7 +202,7 @@ Type           : hCaptcha or reCAPTCHA v3 (invisible, score-based)
 Purpose        : Prevent automated brute force and credential stuffing bots
 ```
 
-### Policy 6 — Session Security
+### 6. Session Security
 
 ```
 Session ID         : Generate new ID after successful login (prevent session fixation)
@@ -220,7 +220,7 @@ Cookie flags:
 
 ---
 
-## 🏗️ Secure Authentication Architecture
+## Secure Authentication Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -255,9 +255,9 @@ Cookie flags:
 
 ---
 
-## ✅ Implementation Checklist
+## Mitigation Strategy
 
-### Developers
+### Application Code ( Developers )
 - [ ] Password minimum 12 characters enforced server-side
 - [ ] Common password blocklist integrated
 - [ ] bcrypt (rounds ≥ 12) or Argon2id used for all password storage
@@ -271,22 +271,12 @@ Cookie flags:
 - [ ] Secure password reset (expiring token via email, not security questions)
 - [ ] Failed login notification sent to account owner
 
-### Operations
+### Business Process ( Corporate / Operations Team 
 - [ ] TLS 1.2 minimum configured (prefer TLS 1.3)
 - [ ] HSTS header enabled with long max-age
 - [ ] Authentication events logged with IP, timestamp, outcome
 - [ ] Alerts configured for brute force patterns
 - [ ] Breach password list updated regularly
-
----
-
-## 🧠 Key Takeaways
-
-1. **Authentication security is a shared responsibility.** Applications must enforce strong policies server-side — relying on users to choose strong passwords without technical enforcement always fails.
-2. **MFA is the single highest-ROI security control for account protection.** Implementing TOTP-based MFA blocks the vast majority of credential-stuffing and phishing attacks.
-3. **NIST's guidance on password rotation is counterintuitive but correct.** Forcing regular rotation leads to weak, predictable passwords. Only change on compromise.
-4. **Every authentication event is a security event.** Log IP, timestamp, and outcome for every login attempt — this data is essential for detecting brute force and responding to incidents.
-5. **Session management is authentication's second half.** A perfectly secure login is worthless if the resulting session can be stolen, fixed, or kept indefinitely.
 
 ---
 
@@ -298,6 +288,3 @@ Cookie flags:
 4. OWASP Cheat Sheet — [Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
 5. OWASP Cheat Sheet — [Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)
 
----
-
-*This document represents policy design and analysis based on industry standards. No systems were tested or attacked in the creation of this document.*
