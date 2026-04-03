@@ -1,16 +1,8 @@
-# 🛡️ Cybersecurity Portfolio — Muhammad Shofwan Shiddiq
+# Cybersecurity Portfolio
 
-> Red Team / Offensive Security · Web Application Pentesting · Malware Analysis
+Cybersecurity portfolio consist of application penetration testing, offensive security simulations, and malware analysis. All research documented here was conducted exclusively in authorized lab environments, intentionally vulnerable applications (OWASP Juice Shop), and sandbox platforms.
 
----
-
-## 👤 About
-
-Security practitioner with hands-on experience in web application penetration testing, offensive security simulations, and malware analysis. All research documented here was conducted exclusively in authorized lab environments, intentionally vulnerable applications (OWASP Juice Shop), and sandbox platforms.
-
----
-
-## 📁 Portfolio Structure
+## Content
 
 | File | Topic | Category | Severity |
 |------|-------|----------|----------|
@@ -24,7 +16,7 @@ Security practitioner with hands-on experience in web application penetration te
 
 ---
 
-## 🧰 Tools & Environment
+## Tools & Environment
 
 ```
 Offensive       : Burp Suite, SQLMap, BetterCap v2.41, Kali Linux
@@ -36,7 +28,7 @@ Languages       : PHP, Python, JavaScript (Node.js / Express.js), SQL
 
 ---
 
-## 📊 Summary Stats
+## Summary Stats
 
 | Metric | Value |
 |--------|-------|
@@ -49,23 +41,12 @@ Languages       : PHP, Python, JavaScript (Node.js / Express.js), SQL
 
 ---
 
-## ⚠️ Ethical Disclosure
+## Ethical Disclosure
 
 > All security research in this portfolio was performed exclusively within **authorized environments**:
 > - OWASP Juice Shop (intentionally vulnerable by design)
 > - Custom local lab applications built for testing purposes
 > - Public sandbox platforms (Triage, VirusTotal, Any.Run)
 > - Target: `testphp.vulnweb.com` (public vulnerable test site)
->
 > No unauthorized or production systems were accessed at any point. All sensitive data (real IPs outside CTF context, credentials) has been sanitized per responsible disclosure principles.
 
----
-
-## 📬 Contact
-
-**Muhammad Shofwan Shiddiq**
-- 📧 shofwanjuice@gmail.com
-
----
-
-*© 2026 Muhammad Shofwan Shiddiq — For educational purposes only.*
