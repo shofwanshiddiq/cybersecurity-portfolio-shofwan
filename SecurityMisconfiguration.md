@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 | Field | Detail |
 |-------|--------|
@@ -16,7 +16,7 @@
 
 ---
 
-## 🎯 Objective
+## Objective
 
 Identify and exploit security misconfiguration vulnerabilities in OWASP Juice Shop:
 1. Provoke unhandled errors that leak database schema, file paths, and query structure
@@ -24,7 +24,7 @@ Identify and exploit security misconfiguration vulnerabilities in OWASP Juice Sh
 
 ---
 
-## 📖 Background — What is Security Misconfiguration?
+## Background — What is Security Misconfiguration?
 
 Security Misconfiguration occurs when a system is set up incorrectly, not due to a bug in the code logic, but because of poor configuration choices. According to OWASP data, it ranked **#2 in 2025** (up from #5 in 2021), reflecting how common configuration mistakes are across production environments.
 
@@ -38,7 +38,7 @@ Security Misconfiguration occurs when a system is set up incorrectly, not due to
 
 ---
 
-## 🔍 Reconnaissance
+## Reconnaissance
 
 ### Manual Application Browsing
 - Mapped all visible endpoints using Burp Suite HTTP History
@@ -57,7 +57,7 @@ Disallow: /ftp
 
 ---
 
-## 💥 Exploitation
+## Exploitation
 
 ### Finding 1 — Verbose Error Handling (Stack Trace Disclosure)
 
@@ -66,8 +66,13 @@ Disallow: /ftp
 
 **Steps:**
 1. Open Burp Suite, browse Juice Shop, capture `GET /rest/products/search?q=apple`
-2. Send to Repeater
-3. Modify the `q` parameter to an invalid SQL fragment: `q=',1,1,1--`
+
+<img width="600" height="222" alt="image" src="https://github.com/user-attachments/assets/26441f0f-9c78-43ef-9f4b-2f3f1d42ee10" />
+
+3. Send to Repeater
+4. Modify the `q` parameter to an invalid SQL fragment: `q=',1,1,1--`
+
+<img width="600" height="501" alt="image" src="https://github.com/user-attachments/assets/4c8710b1-e2d0-432d-b61f-cd5ad64b294c" />
 
 **Modified Request:**
 ```http
@@ -100,6 +105,8 @@ Authorization: Bearer <token>
 | SQL Query Logic | Full WHERE clause revealed |
 | Error Layer | Database-level (confirms raw queries, not ORM) |
 
+<img width="600" height="427" alt="image" src="https://github.com/user-attachments/assets/c2567172-3564-4d24-b05f-a7d8e202bdd2" />
+
 > ✅ **Challenge Completed:** "Error Handling" — Provoke an error that is neither very gracefully nor consistently handled.
 
 ---
@@ -111,7 +118,12 @@ Authorization: Bearer <token>
 
 **Steps:**
 1. After discovering `/ftp` in `robots.txt`, navigate to `http://localhost:3000/ftp`
-2. Full directory listing rendered in browser — no authentication required
+
+<img width="600" height="246" alt="image" src="https://github.com/user-attachments/assets/e1b3aee7-7a8d-4fe1-bcf9-8282055f89ef" />
+
+3. Full directory listing rendered in browser — no authentication required
+
+<img width="600" height="292" alt="image" src="https://github.com/user-attachments/assets/73f41656-1d62-4f6b-a986-ac25c288ae5e" />
 
 **Directory Contents (`/ftp`):**
 ```
@@ -143,12 +155,15 @@ Our shareholders will be excited. It's true. No fake news.
 
 > This document is flagged as **confidential** yet is freely downloadable with zero authentication. In a real organization, this would constitute a serious data leak with regulatory and legal implications.
 
+<img width="600" height="538" alt="image" src="https://github.com/user-attachments/assets/e058e63a-16a6-4150-bcff-8774e902d951" />
+<img width="600" height="390" alt="image" src="https://github.com/user-attachments/assets/e7241f5b-7d9d-4400-9380-00f3e94e317f" />
+
 > ✅ **Challenge Completed:** "Confidential Document" — Access a confidential document.
 > ✅ **Challenge Completed:** "Score Board" — Find the carefully hidden Score Board page.
 
 ---
 
-## 🛠️ Root Cause Analysis
+## Root Cause Analysis
 
 ### Finding 1 — Verbose Error Handling
 ```
@@ -171,7 +186,7 @@ Root Causes:
 
 ---
 
-## 🔧 Remediation
+## Remediation
 
 ### Fix 1 — Global Error Handler (Express.js)
 
@@ -229,7 +244,7 @@ app.use('/ftp', requireAuth, express.static(path.join(__dirname, 'ftp'), {
 
 ---
 
-## ⚙️ Production Configuration Checklist
+## Production Configuration Checklist
 
 Based on findings, all production deployments should verify:
 
@@ -245,7 +260,7 @@ Based on findings, all production deployments should verify:
 
 ---
 
-## 📊 Impact Assessment
+## Impact Assessment
 
 | Finding | Business Impact |
 |---------|----------------|
@@ -256,7 +271,7 @@ Based on findings, all production deployments should verify:
 
 ---
 
-## 🧠 Lessons Learned
+## Conclutions
 
 1. **`robots.txt` is not a security control.** It tells attackers exactly where to look. Sensitive paths must be protected by authentication, not obscured by crawler hints.
 2. **Default error handlers are dangerous in production.** Express.js (and most frameworks) will return detailed error objects by default. A global error handler is mandatory before going live.
@@ -265,4 +280,3 @@ Based on findings, all production deployments should verify:
 
 ---
 
-*Environment: Authorized lab — OWASP Juice Shop (intentionally vulnerable). No production systems accessed.*
