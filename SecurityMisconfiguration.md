@@ -161,6 +161,8 @@ Our shareholders will be excited. It's true. No fake news.
 > ✅ **Challenge Completed:** "Confidential Document" — Access a confidential document.
 > ✅ **Challenge Completed:** "Score Board" — Find the carefully hidden Score Board page.
 
+<img width="600" height="532" alt="image" src="https://github.com/user-attachments/assets/68bac706-2b1d-47cf-bbe5-c020810557bf" />
+
 ---
 
 ## Root Cause Analysis
