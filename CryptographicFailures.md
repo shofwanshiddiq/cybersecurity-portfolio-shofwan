@@ -229,8 +229,9 @@ Password : test
 
 ### HTTPS Sniffing — No Data Captured
 
-
 **Victim logs into `https://dribbble.com`**
+
+<img width="600" height="578" alt="image" src="https://github.com/user-attachments/assets/baf5c633-5181-460a-8a2d-2400cb253812" />
 
 **BetterCap output:**
 ```
