@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 | Field | Detail |
 |-------|--------|
@@ -15,7 +15,7 @@
 
 ---
 
-## 🎯 Objective
+## Objective
 
 Demonstrate the practical consequences of cryptographic failures in two areas:
 1. **Password Storage** — Compare plaintext, MD5, and bcrypt storage; attempt to crack each
@@ -23,7 +23,7 @@ Demonstrate the practical consequences of cryptographic failures in two areas:
 
 ---
 
-## 📖 Background
+## Background
 
 Cryptographic Failures occur when a system fails to adequately protect sensitive data in transit or at rest. This is OWASP **A02:2021** — the second most critical web security risk.
 
@@ -35,7 +35,7 @@ Cryptographic Failures occur when a system fails to adequately protect sensitive
 
 ---
 
-## 🔬 Part 1 — Password Hashing Comparison
+## Part 1 — Password Hashing Comparison
 
 ### Lab Setup
 ```
@@ -70,7 +70,7 @@ username        | password_plaintext | password_md5 | password_bcrypt
 shofwan_shiddiq | Password123!       | NULL         | NULL
 ```
 
-> ⚠️ Anyone with database read access — via SQLi, backup leak, or insider threat — sees credentials immediately.
+> Anyone with database read access — via SQLi, backup leak, or insider threat — sees credentials immediately.
 
 ---
 
@@ -140,6 +140,14 @@ Both hashes tested against **CrackStation** (online hash cracker with 15+ billio
 
 **MD5 cracking time:** Near-instant (entry in precomputed rainbow table)
 
+- Attempt on MD5
+  
+<img width="600" height="320" alt="image" src="https://github.com/user-attachments/assets/849b1811-68f6-4d29-9ca9-c006ecc72945" />
+
+- Attempt on Bcrypt
+
+<img width="600" height="332" alt="image" src="https://github.com/user-attachments/assets/70cef8d4-38aa-4cbd-ab12-4eb579ed7454" />
+
 ---
 
 ### Cryptographic Comparison
@@ -161,7 +169,7 @@ Both hashes tested against **CrackStation** (online hash cracker with 15+ billio
 
 ---
 
-## 🔬 Part 2 — HTTP vs HTTPS Protocol Sniffing
+## Part 2 — HTTP vs HTTPS Protocol Sniffing
 
 ### Setup
 
@@ -173,6 +181,8 @@ Target 2 : https://dribbble.com         (HTTPS — TLS encrypted)
 ```
 
 ### HTTP Sniffing
+
+<img width="600" height="712" alt="image" src="https://github.com/user-attachments/assets/dea78f40-667b-4867-b1a0-22f70ed30f47" />
 
 **BetterCap setup:**
 ```bash
@@ -187,6 +197,8 @@ http.proxy on
 ```
 
 **Victim logs into `testphp.vulnweb.com`**
+
+<img width="600" height="472" alt="image" src="https://github.com/user-attachments/assets/3560ad25-5467-4af9-bd27-9ddb082f74e1" />
 
 **Captured by BetterCap:**
 ```
@@ -216,6 +228,7 @@ Password : test
 ---
 
 ### HTTPS Sniffing — No Data Captured
+
 
 **Victim logs into `https://dribbble.com`**
 
@@ -286,7 +299,7 @@ Rotation policy   : Only force change on evidence of compromise (NIST guidance)
 
 ---
 
-## 📊 Impact of Cryptographic Failures
+## Consequence of Cryptographic Failures
 
 | Failure | Consequence |
 |---------|-------------|
@@ -299,7 +312,7 @@ Rotation policy   : Only force change on evidence of compromise (NIST guidance)
 
 ---
 
-## 🧠 Lessons Learned
+## Conclutions
 
 1. **MD5 is dead for password storage.** It was never designed for passwords — it's optimized for speed, which means GPU-accelerated cracking is trivially fast. Over 15 billion MD5 hashes are in publicly available rainbow tables.
 2. **The cost of bcrypt is a feature.** Its intentional slowness (configurable via rounds) means brute-forcing is economically infeasible even for short passwords at high work factors.
@@ -307,5 +320,3 @@ Rotation policy   : Only force change on evidence of compromise (NIST guidance)
 4. **Encryption in transit and at rest are separate requirements.** HTTPS protects data while moving; bcrypt protects data at rest. Both are needed — one doesn't substitute for the other.
 
 ---
-
-*Environment: Kali Linux lab with MariaDB for hashing experiments. BetterCap used on an isolated bridged network. testphp.vulnweb.com is a publicly available intentionally vulnerable test site.*
