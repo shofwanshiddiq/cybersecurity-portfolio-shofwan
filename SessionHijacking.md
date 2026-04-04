@@ -3,26 +3,26 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 | Field | Detail |
 |-------|--------|
 | **Target** | `testphp.vulnweb.com` (public vulnerable test site) |
 | **Category** | Session Hijacking / Cookie Theft (OWASP A07:2021) |
-| **Severity** | 🟠 High |
+| **Severity** | High |
 | **Attack Method** | ARP Spoofing → Man-in-the-Middle → Cookie Capture |
 | **Tools** | BetterCap v2.41.5, Kali Linux (bridged network) |
 | **Prevention Demo** | ASP.NET Core — HTTPS, HSTS, HttpOnly, Secure, SameSite |
 
 ---
 
-## 🎯 Objective
+## Objective
 
 Demonstrate the full cookie hijacking attack chain using ARP Spoofing in a controlled bridged lab environment. Contrast the results against HTTPS-protected traffic, and document implementation of all relevant cookie security flags and protocol hardening measures.
 
 ---
 
-## 📖 Background — Session Hijacking
+## Background — Session Hijacking
 
 **Cookie Hijacking** is an attack where an adversary steals a victim's session cookie — the credential token issued by a server after a successful login — and replays it to impersonate the authenticated user.
 
@@ -39,7 +39,7 @@ Demonstrate the full cookie hijacking attack chain using ARP Spoofing in a contr
 
 ---
 
-## 🔍 Vulnerability Analysis
+## Vulnerability Analysis
 
 ### 2.1 Unencrypted Protocol (HTTP)
 
@@ -64,6 +64,10 @@ set arp.spoof.targets 192.168.0.11
 arp.spoof on
 ```
 
+<img width="600" height="517" alt="image" src="https://github.com/user-attachments/assets/6fb50035-31bf-4860-b6d5-380ce72209ea" />
+<img width="600" height="662" alt="image" src="https://github.com/user-attachments/assets/9465f851-2607-4a3e-a309-db58e38bff37" />
+
+
 ### 2.2 Insecure Cookie Configuration
 
 The captured cookie from `testphp.vulnweb.com`:
@@ -72,15 +76,15 @@ Set-Cookie: login=test%2Ftest
 ```
 
 **Missing security flags:**
-| Flag | Present | Risk Without It |
-|------|---------|----------------|
-| `Secure` | ❌ | Cookie sent over HTTP — interceptable |
-| `HttpOnly` | ❌ | Cookie accessible via JavaScript — XSS theft possible |
-| `SameSite` | ❌ | Cookie sent on cross-site requests — CSRF possible |
+| Flag |  Risk Without It |
+|------|----------------|
+| `Secure` |  Cookie sent over HTTP — interceptable |
+| `HttpOnly` |  Cookie accessible via JavaScript — XSS theft possible |
+| `SameSite` |  Cookie sent on cross-site requests — CSRF possible |
 
 ---
 
-## 💥 Exploitation
+## Exploitation
 
 ### HTTP Sniffing — Full Credential & Cookie Capture
 
@@ -131,13 +135,11 @@ Password : test
 
 ---
 
-## 🛡️ Prevention Techniques
+## Prevention Techniques
 
 ### 3.1 HTTPS / TLS
 
 Encrypts all traffic between client and server. Even with ARP Spoofing active, the attacker sees only ciphertext.
-
-**Effectiveness:** ⭐⭐⭐⭐⭐ — Eliminates network-layer sniffing entirely
 
 **ASP.NET Core Implementation (`appsettings.json`):**
 ```json
@@ -162,8 +164,6 @@ Encrypts all traffic between client and server. Even with ARP Spoofing active, t
 
 Forces browsers to always use HTTPS — prevents attackers from downgrading connections to HTTP.
 
-**Effectiveness:** ⭐⭐⭐⭐ — Prevents HTTP fallback attacks. Requires HTTPS already configured.
-
 **ASP.NET Core Implementation (`Program.cs`):**
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
@@ -187,8 +187,6 @@ app.UseHsts();             // Enforce HTTPS via browser header
 **`Secure` Flag:** Cookie only transmitted over HTTPS connections  
 **`HttpOnly` Flag:** Cookie inaccessible to JavaScript — prevents XSS-based theft  
 **`SameSite=Strict` Flag:** Cookie not sent with cross-site requests — prevents CSRF  
-
-**Effectiveness:** ⭐⭐⭐⭐ — Defense-in-depth against multiple cookie attack vectors
 
 **ASP.NET Core Implementation (`Program.cs`):**
 ```csharp
@@ -219,40 +217,15 @@ Set-Cookie: .AspNetCore.Session=<value>;
 
 ---
 
-## 📊 Technique Comparison
-
-| Prevention Method | Effectiveness | Complexity | Prevents MITM Sniff | Prevents XSS Theft | Prevents CSRF |
-|------------------|---------------|------------|--------------------|--------------------|---------------|
-| HTTPS/TLS | ⭐⭐⭐⭐⭐ | Medium | ✅ | ❌ | ❌ |
-| HSTS | ⭐⭐⭐⭐ | Low | ✅ (with HTTPS) | ❌ | ❌ |
-| Secure Flag | ⭐⭐⭐⭐ | Low | ✅ (blocks HTTP send) | ❌ | ❌ |
-| HttpOnly | ⭐⭐⭐⭐ | Low | ❌ | ✅ | ❌ |
-| SameSite=Strict | ⭐⭐⭐⭐ | Low | ❌ | ❌ | ✅ |
-
-> **Recommendation:** Implement all five — each targets a different attack vector. They are complementary, not interchangeable.
 
 ---
 
-## 🧠 Lessons Learned
+## Conclusion
 
-1. **HTTP is completely transparent to a MITM attacker.** Username, password, and session cookies were captured in a single login — no special tools required beyond ARP Spoofing and a basic proxy.
-2. **HTTPS is the single most impactful control.** Enabling TLS made the same ARP Spoofing attack produce zero useful data. The cost-to-benefit ratio is unmatched.
-3. **Cookie flags are cheap and high-value.** Adding `HttpOnly; Secure; SameSite=Strict` to a cookie is a few lines of configuration — yet blocks multiple distinct attack classes.
-4. **All controls are necessary.** HTTPS alone doesn't stop XSS cookie theft (needs HttpOnly). HttpOnly alone doesn't stop network sniffing (needs HTTPS + Secure). Defense in depth means stacking all layers.
-5. **ARP Spoofing is viable on any shared network.** Coffee shop, hotel, corporate LAN — any network where the attacker can join puts HTTP sessions at risk.
+1. HTTP is completely transparent to a MITM attacker.** Username, password, and session cookies were captured in a single login — no special tools required beyond ARP Spoofing and a basic proxy.
+2. HTTPS is the single most impactful control.** Enabling TLS made the same ARP Spoofing attack produce zero useful data. The cost-to-benefit ratio is unmatched.
+3. Cookie flags are cheap and high-value.** Adding `HttpOnly; Secure; SameSite=Strict` to a cookie is a few lines of configuration — yet blocks multiple distinct attack classes.
+4. All controls are necessary.** HTTPS alone doesn't stop XSS cookie theft (needs HttpOnly). HttpOnly alone doesn't stop network sniffing (needs HTTPS + Secure). Defense in depth means stacking all layers.
+5. ARP Spoofing is viable on any shared network.** Coffee shop, hotel, corporate LAN — any network where the attacker can join puts HTTP sessions at risk.
 
----
 
-## 📚 Key Concepts
-
-**ARP Spoofing:** Attacker sends forged ARP (Address Resolution Protocol) replies to associate their MAC address with the gateway IP, causing victims to route traffic through the attacker machine.
-
-**Man-in-the-Middle (MITM):** Attacker sits between client and server, able to read, modify, and inject traffic in real-time.
-
-**Session Fixation:** Attacker sets a known session ID before login, then uses it after the victim authenticates. Mitigated by regenerating session ID on login.
-
-**CSRF (Cross-Site Request Forgery):** Victim's browser is tricked into making an authenticated request to a target site from a malicious page. SameSite cookie flag is the primary defense.
-
----
-
-*Environment: Kali Linux (bridged network adapter) used as attacker machine in isolated lab. Target: testphp.vulnweb.com — a publicly available intentionally vulnerable test site. No private networks or unauthorized systems accessed.*
