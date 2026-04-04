@@ -217,9 +217,6 @@ Set-Cookie: .AspNetCore.Session=<value>;
 
 ---
 
-
----
-
 ## Conclusion
 
 1. HTTP is completely transparent to a MITM attacker.** Username, password, and session cookies were captured in a single login — no special tools required beyond ARP Spoofing and a basic proxy.
